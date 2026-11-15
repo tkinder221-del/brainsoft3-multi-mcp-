@@ -1,0 +1,21 @@
+name: Validate Python gateway
+on:
+  push:
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check syntax
+        run: python -m py_compile server.py
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Import gateway and inspect tools
+        env:
+          GATEWAY_API_KEY: test-ci-only-not-a-real-secret
+          MCP_SERVERS_JSON: '{}'
+        run: python -c "import server; assert server.config() == {}; assert server.allowed_names() == set(); print('Gateway imports OK')"
